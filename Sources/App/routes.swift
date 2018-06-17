@@ -9,7 +9,8 @@ public func routes(_ router: Router) throws {
     }
     
     router.get("/") { req -> Future<View> in
-        return try req.view().render("home")
+        
+        return try req.view().render("home", [["greeting":"hello"], ["message" : "world"]])
     }
     
     // MARK: - Predicions
