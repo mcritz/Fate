@@ -3,11 +3,17 @@ import Leaf
 
 /// Register your application's routes here.
 public func routes(_ router: Router) throws {
-    // Basic "Hello, world!" example
-    router.get("hello") { req in
-        return "Hello, world!"
+    // MARK: - Basics
+    router.get("healthcheck") { req in
+        return "ok"
     }
+    
     router.get("/") { req -> Future<View> in
         return try req.view().render("home")
     }
+    
+    // MARK: - Predicions
+    let predixController = PredictionController()
+    router.get("predictions", use: predixController.index)
+    router.post("predictions", use: predixController.create)
 }
