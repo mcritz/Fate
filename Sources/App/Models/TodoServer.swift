@@ -4,10 +4,10 @@
 //
 //  Created by Michael Critz on 6/12/18.
 //
-import FluentSQLite
+import FluentMySQL
 import Vapor
 
-extension Todo: SQLiteModel { }
+extension Todo: MySQLModel { }
 
 /// Allows `Todo` to be used as a dynamic migration.
 extension Todo: Migration { }

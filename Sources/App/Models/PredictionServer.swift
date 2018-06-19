@@ -5,10 +5,10 @@
 //  Created by Michael Critz on 6/16/18.
 //
 
-import FluentSQLite
+import FluentMySQL
 import Vapor
 
-extension Prediction: SQLiteModel { }
+extension Prediction: MySQLModel { }
 
 extension Prediction: Migration { }
 
