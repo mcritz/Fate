@@ -4,10 +4,10 @@
 //
 //  Created by Michael Critz on 6/12/18.
 //
-import FluentMySQL
+import FluentPostgreSQL
 import Vapor
 
-extension Todo: MySQLModel { }
+extension Todo: PostgreSQLModel { }
 
 /// Allows `Todo` to be used as a dynamic migration.
 extension Todo: Migration { }

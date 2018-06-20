@@ -5,10 +5,10 @@
 //  Created by Michael Critz on 6/16/18.
 //
 
-import FluentMySQL
+import FluentPostgreSQL
 import Vapor
 
-extension Prediction: MySQLModel { }
+extension Prediction: PostgreSQLModel { }
 
 extension Prediction: Migration { }
 
