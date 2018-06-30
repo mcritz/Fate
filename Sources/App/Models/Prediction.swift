@@ -13,16 +13,14 @@ enum PredictionStatus: Int, Codable {
 final class Prediction: Codable {
     var id: Int?
     var description: String
-    let created: Date?
-    var status: PredictionStatus?
-    init(id: Int? = nil, description: String, status: PredictionStatus? = .draft, created: Date? = nil) {
+    var status: PredictionStatus
+    init(id: Int? = nil, description: String, status: PredictionStatus? = .draft) {
         self.id = id
         self.description = description
-        self.status = status
-        if let realDate: Date = created {
-            self.created = realDate
+        if let realStatus: PredictionStatus = status {
+            self.status = realStatus
         } else {
-            self.created = Date()
+            self.status = .draft
         }
     }
 }
