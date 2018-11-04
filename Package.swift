@@ -11,10 +11,12 @@ let package = Package(
         // 🖋🐘 Swift ORM (queries, models, relations, etc) built on PostgreSQL.
         .package(url: "https://github.com/vapor/fluent-postgresql.git", from: "1.0.0"),
         // 🍃 Leaf
-        .package(url: "https://github.com/vapor/leaf", from: "3.0.2")
+        .package(url: "https://github.com/vapor/leaf", from: "3.0.2"),
+        // 👤 Authentication and Authorization framework for Fluent.
+        .package(url: "https://github.com/vapor/auth.git", from: "2.0.1"),
     ],
     targets: [
-        .target(name: "App", dependencies: ["FluentPostgreSQL", "Leaf", "Vapor"]),
+        .target(name: "App", dependencies: ["Authentication", "FluentPostgreSQL", "Leaf", "Vapor"]),
         .target(name: "Run", dependencies: ["App"]),
         .testTarget(name: "AppTests", dependencies: ["App"])
     ]
