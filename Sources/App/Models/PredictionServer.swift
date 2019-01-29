@@ -8,7 +8,7 @@
 import FluentPostgreSQL
 import Vapor
 
-extension Prediction: PostgreSQLModel { }
+extension Prediction: PostgreSQLUUIDModel { }
 
 extension Prediction: Migration { }
 
