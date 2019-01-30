@@ -14,8 +14,9 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     
     // MARK: Migrations
     var migrations = MigrationConfig()
-    migrations.add(model: Prediction.self, database: .psql)
+    // Must have the models in order from which references which
     migrations.add(model: User.self, database: .psql)
+    migrations.add(model: Prediction.self, database: .psql)
     services.register(migrations)
     
     // MARK: - Leaf / View
