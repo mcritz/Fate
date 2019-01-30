@@ -4,6 +4,7 @@ import FluentPostgreSQL
 
 final class User: Codable {
     var id: UUID?
+    // FIXME: Neeed to validate email
     let email: String
     let username: String
     let password: String
