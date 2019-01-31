@@ -9,8 +9,10 @@ import Vapor
 
 final class PredictionController: RouteCollection {
     func boot(router: Router) throws {
-        router.get("predictions", use: self.index)
-        router.post("predictions", use: self.create)
+        let predictionsRoutes = router.grouped("predictions")
+        predictionsRoutes.get(use: self.index)
+        predictionsRoutes.post(use: self.create)
+        predictionsRoutes.get(Prediction.parameter, use: self.get)
     }
 
     func index(_ req: Request) throws -> Future<[Prediction]> {
@@ -21,5 +23,9 @@ final class PredictionController: RouteCollection {
         return try req.content.decode(Prediction.self).flatMap { predix in
             return predix.save(on: req)
         }
+    }
+    
+    func get(_ req: Request) throws -> Future<Prediction> {
+        return try req.parameters.next(Prediction.self)
     }
 }
