@@ -13,9 +13,7 @@ public func routes(_ router: Router) throws {
     
     // MARK: - Predicions
     let predixController = PredictionController()
-    router.get("predictions", use: predixController.index)
-    router.post("predictions", use: predixController.create)
-    
+    try router.register(collection: predixController)
     
     
 }

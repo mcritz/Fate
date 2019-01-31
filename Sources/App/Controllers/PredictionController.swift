@@ -7,7 +7,12 @@
 
 import Vapor
 
-final class PredictionController {
+final class PredictionController: RouteCollection {
+    func boot(router: Router) throws {
+        router.get("predictions", use: self.index)
+        router.post("predictions", use: self.create)
+    }
+
     func index(_ req: Request) throws -> Future<[Prediction]> {
         return Prediction.query(on: req).all()
     }

@@ -7,7 +7,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     /// Register providers first
     try services.register(FluentPostgreSQLProvider())
     /// Register custom PostgreSQL Config
-    let psqlConfig = PostgreSQLDatabaseConfig(hostname: "localhost", port: 5432, username: "mcritz")
+    let psqlConfig = PostgreSQLDatabaseConfig(hostname: "localhost", port: 5432, username: "mcritz", database: "mcritz")
     let psql = PostgreSQLDatabase(config: psqlConfig)
     services.register(psql)
     
