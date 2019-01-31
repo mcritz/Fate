@@ -11,9 +11,11 @@ public func routes(_ router: Router) throws {
         return try req.view().render("home", [["greeting":"hello"], ["message" : "world"]])
     }
     
-    // MARK: - Predicions
+    // MARK: - Models
     let predixController = PredictionController()
     try router.register(collection: predixController)
     
+    let topixController = TopicController()
+    try router.register(collection: topixController)
     
 }
