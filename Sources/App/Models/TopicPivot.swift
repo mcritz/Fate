@@ -27,4 +27,12 @@ final class TopicPivot: PostgreSQLUUIDPivot, ModifiablePivot {
     }
 }
 
-extension TopicPivot: Migration {}
+extension TopicPivot: Migration {
+    static func prepare(on connection: PostgreSQLConnection) -> Future<Void> {
+        return Database.create(self, on: connection) { builder in
+            try addProperties(to: builder)
+            builder.reference(from: \TopicPivot.topicID, to: \Topic.id, onDelete: .cascade)
+            builder.reference(from: \TopicPivot.predictionID, to: \Prediction.id, onDelete: .cascade)
+        }
+    }
+}
