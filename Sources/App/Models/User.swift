@@ -23,4 +23,11 @@ final class User: Codable {
 extension User: PostgreSQLUUIDModel {}
 extension User: Content {}
 extension User: Parameter {}
-extension User: Migration {}
+extension User: Migration {
+    static func prepare(on connection: PostgreSQLConnection) -> Future<Void> {
+        return Database.create(self, on: connection) { builder in
+            try addProperties(to: builder)
+            builder.unique(on: \.username)
+        }
+    }
+}
