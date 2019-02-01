@@ -8,6 +8,12 @@
 import Vapor
 import FluentPostgreSQL
 
+extension Topic {
+    var predictions: Siblings<Topic, Prediction, TopicPivot> {
+        return siblings()
+    }
+}
+
 extension Topic: PostgreSQLModel {}
 extension Topic: Migration {}
 extension Topic: Content {}
