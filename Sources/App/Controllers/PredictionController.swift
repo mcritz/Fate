@@ -13,6 +13,7 @@ final class PredictionController: RouteCollection {
         predictionsRoutes.get(use: self.index)
         predictionsRoutes.post(use: self.create)
         predictionsRoutes.get(Prediction.parameter, use: self.get)
+        predictionsRoutes.get(Prediction.parameter, "topics", use: self.getTopic)
         predictionsRoutes.post(Prediction.parameter, "topics", Topic.parameter, use: self.addTopic)
     }
 
@@ -28,6 +29,12 @@ final class PredictionController: RouteCollection {
     
     func get(_ req: Request) throws -> Future<Prediction> {
         return try req.parameters.next(Prediction.self)
+    }
+    
+    func getTopic(_ req: Request) throws -> Future<[Topic]> {
+        return try req.parameters.next(Prediction.self).flatMap(to: [Topic].self) { prediction in
+            return try prediction.topics.query(on: req).all()
+        }
     }
     
     func addTopic(_ req: Request) throws -> Future<HTTPStatus> {
