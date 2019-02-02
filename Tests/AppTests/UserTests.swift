@@ -37,4 +37,7 @@ final class UserTest: XCTest {
 
         dbConnection.close()
     }
+    static let allTests = [
+        ("testGetUsers", testGetUsers)
+    ]
 }
