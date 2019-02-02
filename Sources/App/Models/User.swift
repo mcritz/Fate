@@ -31,3 +31,8 @@ extension User: Migration {
         }
     }
 }
+
+extension User: BasicAuthenticatable {
+    static let usernameKey: UsernameKey = \User.username as! User.UsernameKey
+    static let passwordKey: PasswordKey = \User.password 
+}

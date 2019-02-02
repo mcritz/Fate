@@ -7,6 +7,7 @@
 
 import Vapor
 import Crypto
+import Authentication
 
 struct UsersController: RouteCollection {
     func boot(router: Router) throws {
