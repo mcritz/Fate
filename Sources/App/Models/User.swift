@@ -8,6 +8,11 @@ final class User: Codable {
     let email: String
     let username: String
     let password: String
+    init(email: String, password: String) {
+        self.email = email
+        self.username = email
+        self.password = password
+    }
 }
 
 // MARK: Vapor specific
