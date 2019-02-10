@@ -8,6 +8,12 @@
 import FluentPostgreSQL
 import Vapor
 
+extension Prediction {
+    var topics: Siblings<Prediction, Topic, TopicPivot> {
+        return siblings()
+    }
+}
+
 extension Prediction: PostgreSQLUUIDModel { }
 
 extension Prediction: Migration { }
