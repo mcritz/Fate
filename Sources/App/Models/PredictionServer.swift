@@ -14,7 +14,7 @@ extension Prediction {
     }
 }
 
-extension Prediction: PostgreSQLModel { }
+extension Prediction: PostgreSQLUUIDModel { }
 
 extension Prediction: Migration { }
 

@@ -8,12 +8,13 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     // MARK: Providers
     try services.register(FluentPostgreSQLProvider())
     /// Register custom PostgreSQL Config
-//    let psqlConfig = PostgreSQLDatabaseConfig(hostname: "localhost", port: 5432, username: "mcritz")
-    let databaseHostname = Environment.get("DATABASE_HOSTNAME") ?? "localhost"
-    let databaseUser = Environment.get("DATABASE_USER") ?? "vapor"
-    let databaseDB = Environment.get("DATABASE_DB") ?? "vapor"
-    let databasePassword = Environment.get("DATABASE_PASSWORD") ?? "password"
-    let psqlConfig = PostgreSQLDatabaseConfig(hostname: databaseHostname, port: 5432, username: databaseUser, database: databaseDB, password: databasePassword)
+    let psqlConfig = PostgreSQLDatabaseConfig(hostname: "localhost", port: 5432, username: "mcritz")
+    // FIXME: Need to get env paramaters
+//    let databaseHostname = Environment.get("DATABASE_HOSTNAME") ?? "localhost"
+//    let databaseUser = Environment.get("DATABASE_USER") ?? "vapor"
+//    let databaseDB = Environment.get("DATABASE_DB") ?? "vapor"
+//    let databasePassword = Environment.get("DATABASE_PASSWORD") ?? "password"
+//    let psqlConfig = PostgreSQLDatabaseConfig(hostname: databaseHostname, port: 5432, username: databaseUser, database: databaseDB, password: databasePassword)
     let psql = PostgreSQLDatabase(config: psqlConfig)
     services.register(psql)
     

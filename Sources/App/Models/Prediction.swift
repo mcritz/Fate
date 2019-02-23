@@ -11,10 +11,10 @@ enum PredictionStatus: Int, Codable {
 }
 
 final class Prediction: Codable {
-    var id: Int?
+    var id: UUID?
     let description: String
     var status: PredictionStatus
-    init(id: Int? = nil, description: String, status: PredictionStatus? = .draft, userID: User.ID) {
+    init(id: UUID? = nil, description: String, status: PredictionStatus? = .draft, userID: User.ID) {
         self.id = id
         self.description = description
         if let realStatus: PredictionStatus = status {

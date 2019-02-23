@@ -10,11 +10,9 @@ final class User: Codable {
     let username: String
     var password: String
     init(id: UUID?, email: String, username: String?, password: String) {
-        if let id = id {
-            self.id = id
-        }
+        self.id = id
         self.email = email
-        self.username = username ?? email
+        self.username = email
         self.password = password
     }
 }

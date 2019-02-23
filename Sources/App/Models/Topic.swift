@@ -10,4 +10,7 @@ import Foundation
 final class Topic: Codable {
     var id: Int?
     let name: String
+    init(name: String) {
+        self.name = name
+    }
 }
