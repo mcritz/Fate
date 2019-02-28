@@ -26,12 +26,12 @@ final class PredictionController: RouteCollection {
             let futureTopic = req.content.get(Int.self, at: "topicID").flatMap(to: Topic.self) { topicID -> Future<Topic> in
                 return Topic.find(topicID, on: req) ?? Topic.init(name: "Uncategorized")
             }
-            // FIXME: If a predictio is created without a value for topicID then an error is logged
+            // FIXME: Bad smell. There is probably room for improvement here.
             // Add the prediction when the promise is fulfilled
             _ = futureTopic.do { topic in
                 _ = topic.predictions.attach(predix, on: req)
             }.catch { error in
-                print(error)
+                print("Failed to add topic on prediction creation. \r", error)
             }
             return predix.save(on: req)
         }
