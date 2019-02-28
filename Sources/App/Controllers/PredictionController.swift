@@ -15,6 +15,8 @@ final class PredictionController: RouteCollection {
         predictionsRoutes.get(Prediction.parameter, use: self.get)
         predictionsRoutes.get(Prediction.parameter, "topics", use: self.getTopics)
         predictionsRoutes.post(Prediction.parameter, "topics", Topic.parameter, use: self.addTopic)
+        // TODO: PUT /predictions to update prediction
+        predictionsRoutes.delete(Prediction.parameter, "topics", Topic.parameter, use: self.removeTopic)
     }
 
     func index(_ req: Request) throws -> Future<[Prediction]> {
@@ -50,6 +52,12 @@ final class PredictionController: RouteCollection {
     func addTopic(_ req: Request) throws -> Future<HTTPStatus> {
         return try flatMap(to: HTTPStatus.self, req.parameters.next(Prediction.self), req.parameters.next(Topic.self)) { prediction, topic in
             return prediction.topics.attach(topic, on: req).transform(to: .created)
+        }
+    }
+    
+    func removeTopic(_ req: Request) throws -> Future<HTTPStatus> {
+        return try flatMap(to: HTTPStatus.self, req.parameters.next(Prediction.self), req.parameters.next(Topic.self)) { prediction, topic in
+            return prediction.topics.detach(topic, on: req).transform(to: .ok)
         }
     }
 }
