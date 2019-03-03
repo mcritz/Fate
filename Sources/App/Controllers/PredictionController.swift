@@ -13,9 +13,9 @@ final class PredictionController: RouteCollection {
         predictionsRoutes.get(use: self.index)
         predictionsRoutes.post(use: self.create)
         predictionsRoutes.get(Prediction.parameter, use: self.get)
+        predictionsRoutes.put(Prediction.parameter, use: self.updatePrediction)
         predictionsRoutes.get(Prediction.parameter, "topics", use: self.getTopics)
         predictionsRoutes.post(Prediction.parameter, "topics", Topic.parameter, use: self.addTopic)
-        // TODO: PUT /predictions to update prediction
         predictionsRoutes.delete(Prediction.parameter, "topics", Topic.parameter, use: self.removeTopic)
     }
 
@@ -36,6 +36,18 @@ final class PredictionController: RouteCollection {
                 print("Failed to add topic on prediction creation. \r", error)
             }
             return predix.save(on: req)
+        }
+    }
+    
+    func updatePrediction(_ req: Request) throws -> Future<Prediction> {
+        let maybeOldPrediction = try req.parameters.next(Prediction.self)
+        return maybeOldPrediction.flatMap { oldPredix -> Future<Prediction> in
+            let maybeNewPrediction = try req.content.decode(Prediction.self)
+            return maybeNewPrediction.map { newPredix in
+                let constructedPrediction = newPredix
+                constructedPrediction.id = oldPredix.id
+                return constructedPrediction
+            }.save(on: req)
         }
     }
     
