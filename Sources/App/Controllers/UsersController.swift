@@ -13,8 +13,14 @@ struct UsersController: RouteCollection {
     func boot(router: Router) throws {
         let usersRoute = router.grouped("/", "users")
         usersRoute.post(User.self, use: createHandler)
-        usersRoute.get(use: getAllHandler)
-        usersRoute.get(User.parameter, use: getHandler)
+        
+        
+        // Vapor Authentication based protected routes
+        let basicAuthMiddleware = User.basicAuthMiddleware(using: BCryptDigest())
+        let guardAuthMiddleware = User.guardAuthMiddleware()
+        let protectedUserRoutes = usersRoute.grouped(basicAuthMiddleware, guardAuthMiddleware)
+        protectedUserRoutes.get(use: getAllHandler)
+        protectedUserRoutes.get(User.parameter, use: getHandler)
     }
     
     func createHandler(_ req: Request, user: User) throws -> Future<User> {
