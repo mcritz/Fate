@@ -6,17 +6,23 @@
 //
 
 import Vapor
+import Crypto
+import Authentication
 
 final class PredictionController: RouteCollection {
     func boot(router: Router) throws {
         let predictionsRoutes = router.grouped("predictions")
         predictionsRoutes.get(use: self.index)
-        predictionsRoutes.post(use: self.create)
         predictionsRoutes.get(Prediction.parameter, use: self.get)
-        predictionsRoutes.put(Prediction.parameter, use: self.updatePrediction)
         predictionsRoutes.get(Prediction.parameter, "topics", use: self.getTopics)
-        predictionsRoutes.post(Prediction.parameter, "topics", Topic.parameter, use: self.addTopic)
-        predictionsRoutes.delete(Prediction.parameter, "topics", Topic.parameter, use: self.removeTopic)
+        
+        let basicAuthMiddleware = User.basicAuthMiddleware(using: BCryptDigest())
+        let guardAuthMiddleware = User.guardAuthMiddleware()
+        let protectedPredictionRoutes = predictionsRoutes.grouped(basicAuthMiddleware, guardAuthMiddleware)
+        protectedPredictionRoutes.post(use: self.create)
+        protectedPredictionRoutes.put(Prediction.parameter, use: self.updatePrediction)
+        protectedPredictionRoutes.delete(Prediction.parameter, "topics", Topic.parameter, use: self.removeTopic)
+        protectedPredictionRoutes.post(Prediction.parameter, "topics", Topic.parameter, use: self.addTopic)
     }
 
     func index(_ req: Request) throws -> Future<[Prediction]> {
