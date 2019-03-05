@@ -13,6 +13,7 @@ struct UsersController: RouteCollection {
     func boot(router: Router) throws {
         let usersRoute = router.grouped("/", "users")
         usersRoute.post(User.self, use: createHandler)
+        usersRoute.get(String.parameter, use: getUserByUsername)
         
         
         // Vapor Authentication based protected routes
@@ -20,7 +21,6 @@ struct UsersController: RouteCollection {
         let guardAuthMiddleware = User.guardAuthMiddleware()
         let protectedUserRoutes = usersRoute.grouped(basicAuthMiddleware, guardAuthMiddleware)
         protectedUserRoutes.get(use: getAllHandler)
-        protectedUserRoutes.get(User.parameter, use: getHandler)
     }
     
     func createHandler(_ req: Request, user: User) throws -> Future<User> {
@@ -32,7 +32,13 @@ struct UsersController: RouteCollection {
         return User.query(on: req).all()
     }
     
-    func getHandler(_ req: Request) throws -> Future<User> {
-        return try req.parameters.next(User.self)
+    func getUserByUsername(_ req: Request) throws -> Future<User> {
+        let stringParameter = try req.parameters.next(String.self)
+        return User.query(on: req).filter(\.username == stringParameter).first().flatMap(to: User.self) { matchedUser -> Future<User> in
+            guard let user: User = matchedUser else {
+                throw Abort(.notFound)
+            }
+            return Future.map(on: req) { user }
+        }
     }
 }
