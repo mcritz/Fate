@@ -25,6 +25,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     migrations.add(model: Topic.self, database: .psql)
     migrations.add(model: Prediction.self, database: .psql)
     migrations.add(model: TopicPivot.self, database: .psql)
+    migrations.add(model: Token.self, database: .psql)
     services.register(migrations)
     
     // MARK: - Leaf / View

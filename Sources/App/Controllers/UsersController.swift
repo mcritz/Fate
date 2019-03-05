@@ -17,7 +17,10 @@ struct UsersController: RouteCollection {
         
         
         // Vapor Authentication based protected routes
-        let basicAuthMiddleware = User.basicAuthMiddleware(using: BCryptDigest())
+        let basicAuthMiddleware =
+            User.basicAuthMiddleware(using: BCryptDigest())
+        let basicAuthGroup = usersRoute.grouped(basicAuthMiddleware)
+        basicAuthGroup.post("login", use: getToken)
         let guardAuthMiddleware = User.guardAuthMiddleware()
         let protectedUserRoutes = usersRoute.grouped(basicAuthMiddleware, guardAuthMiddleware)
         protectedUserRoutes.get(use: getAllHandler)
@@ -40,5 +43,11 @@ struct UsersController: RouteCollection {
             }
             return Future.map(on: req) { user }
         }
+    }
+    
+    func getToken(_ req: Request) throws -> Future<Token> {
+        let user = try req.requireAuthenticated(User.self)
+        let token = try Token.generate(for: user)
+        return token.save(on: req)
     }
 }
