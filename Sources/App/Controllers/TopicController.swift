@@ -6,6 +6,8 @@
 //
 
 import Vapor
+import Crypto
+import Authentication
 
 final class TopicController: RouteCollection {
     func boot(router: Router) throws {
@@ -16,6 +18,12 @@ final class TopicController: RouteCollection {
         topicCollection.put(Topic.parameter, use: self.update)
         topicCollection.get(Topic.parameter, "predictions", use: self.predictions)
         topicCollection.post(Topic.parameter, "predictions", Prediction.parameter, use: self.addPrediction)
+        
+        let basicAuthMiddleware = User.basicAuthMiddleware(using: BCryptDigest())
+        let guardMiddleware = User.guardAuthMiddleware()
+        let topicProtectedRoutes = topicCollection.grouped(basicAuthMiddleware, guardMiddleware)
+        topicProtectedRoutes.post(use: self.post)
+        topicProtectedRoutes.put(Topic.parameter, use: self.update)
     }
     func index(_ req: Request) throws -> Future<[Topic]> {
         return Topic.query(on: req).all()
