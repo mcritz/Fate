@@ -16,9 +16,9 @@ final class PredictionController: RouteCollection {
         predictionsRoutes.get(Prediction.parameter, use: self.get)
         predictionsRoutes.get(Prediction.parameter, "topics", use: self.getTopics)
         
-        let basicAuthMiddleware = User.basicAuthMiddleware(using: BCryptDigest())
+        let tokenAuthMiddleware = User.tokenAuthMiddleware()
         let guardAuthMiddleware = User.guardAuthMiddleware()
-        let protectedPredictionRoutes = predictionsRoutes.grouped(basicAuthMiddleware, guardAuthMiddleware)
+        let protectedPredictionRoutes = predictionsRoutes.grouped(tokenAuthMiddleware, guardAuthMiddleware)
         protectedPredictionRoutes.post(use: self.create)
         protectedPredictionRoutes.put(Prediction.parameter, use: self.updatePrediction)
         protectedPredictionRoutes.delete(Prediction.parameter, "topics", Topic.parameter, use: self.removeTopic)

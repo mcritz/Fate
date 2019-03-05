@@ -17,12 +17,16 @@ struct UsersController: RouteCollection {
         
         
         // Vapor Authentication based protected routes
+        // Basic
         let basicAuthMiddleware =
             User.basicAuthMiddleware(using: BCryptDigest())
         let basicAuthGroup = usersRoute.grouped(basicAuthMiddleware)
         basicAuthGroup.post("login", use: getToken)
+        
+        // Token
+        let tokenAuthMiddleware = User.tokenAuthMiddleware()
         let guardAuthMiddleware = User.guardAuthMiddleware()
-        let protectedUserRoutes = usersRoute.grouped(basicAuthMiddleware, guardAuthMiddleware)
+        let protectedUserRoutes = usersRoute.grouped(tokenAuthMiddleware, guardAuthMiddleware)
         protectedUserRoutes.get(use: getAllHandler)
     }
     

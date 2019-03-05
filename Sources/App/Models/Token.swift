@@ -37,3 +37,10 @@ extension Token: Migration {
         }
     }
 }
+
+extension Token: Authentication.Token, BearerAuthenticatable {
+    typealias UserType = User
+    typealias UserIDType = User.ID
+    static let tokenKey: TokenKey = \Token.token
+    static let userIDKey: UserIDKey = \Token.userID
+}
