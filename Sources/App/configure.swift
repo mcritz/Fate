@@ -8,8 +8,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     // MARK: Providers
     try services.register(FluentPostgreSQLProvider())
     /// Register custom PostgreSQL Config
-    let psqlConfig = PostgreSQLDatabaseConfig(hostname: "localhost", port: 5432, username: "mcritz")
-    // FIXME: Need to get env paramaters
+    let psqlConfig = PostgreSQLDatabaseConfig(hostname: "localhost", port: 5432, username: "mcritz")    
 //    let databaseHostname = Environment.get("DATABASE_HOSTNAME") ?? "localhost"
 //    let databaseUser = Environment.get("DATABASE_USER") ?? "vapor"
 //    let databaseDB = Environment.get("DATABASE_DB") ?? "vapor"
@@ -26,6 +25,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     migrations.add(model: Prediction.self, database: .psql)
     migrations.add(model: TopicPivot.self, database: .psql)
     migrations.add(model: Token.self, database: .psql)
+    migrations.add(migration: AdminUser.self, database: .psql)
     services.register(migrations)
     
     // MARK: - Leaf / View

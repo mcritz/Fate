@@ -38,3 +38,31 @@ extension User: BasicAuthenticatable {
 extension User: TokenAuthenticatable {
     typealias TokenType = Token
 }
+
+// TODO: Load admin password from env, then seed database. See book, pp 427..43x
+struct AdminUser: Migration {
+    
+    typealias Database = PostgreSQLDatabase
+    
+    static func prepare(on conn: PostgreSQLConnection) -> EventLoopFuture<Void> {
+        let adminUsername = Environment.get("KRZN_ADMIN_USERNAME")
+        let adminEmail = Environment.get("KRZN_ADMIN_EMAIL")
+        let envPassword = Environment.get("KRZN_ADMIN_PASSWORD")
+        guard let password = envPassword, password.count > 7,
+            let username = adminUsername,
+            let email = adminEmail
+            else {
+            fatalError("Admin password not set in environment")
+        }
+        let maybeEncryptedPassword = try? BCrypt.hash(password)
+        guard let encryptedPassword = maybeEncryptedPassword else {
+            fatalError("Admin password could not be encrypted")
+        }
+        let admin = User(id: nil, email: email, username: username, password: encryptedPassword)
+        return admin.save(on: conn).transform(to: ())
+    }
+    
+    static func revert(on conn: PostgreSQLConnection) -> EventLoopFuture<Void> {
+        return .done(on: conn)
+    }
+}
