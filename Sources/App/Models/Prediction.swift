@@ -7,7 +7,7 @@
 import Foundation
 
 enum PredictionStatus: Int, Codable {
-    case draft = 0, predicted, failed, accurate, deleted
+    case draft = 0, predicted, failed, accurate, partiallyAccurate, deleted
 }
 
 final class Prediction: Codable {

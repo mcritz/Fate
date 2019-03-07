@@ -14,6 +14,7 @@ struct UsersController: RouteCollection {
         let usersRoute = router.grouped("/", "users")
         usersRoute.post(User.self, use: createHandler)
         usersRoute.get(String.parameter, use: getUserByUsername)
+        usersRoute.get(String.parameter, "predictions", use: getPredictionsByUsername)
         
         
         // Vapor Authentication based protected routes
@@ -46,6 +47,19 @@ struct UsersController: RouteCollection {
                 throw Abort(.notFound)
             }
             return Future.map(on: req) { user }
+        }
+    }
+    
+    func getPredictionsByUsername(_ req: Request) throws -> Future<[Prediction]> {
+        let stringParameter = try req.parameters.next(String.self)
+        let futureID = User.query(on: req).filter(\.username == stringParameter).first().map(to: UUID.self) { matchedUser -> UUID in
+            guard let user: User = matchedUser, user.id != nil else {
+                throw Abort(.notFound)
+            }
+            return user.id!
+        }
+        return futureID.flatMap { userID -> Future<[Prediction]> in
+            return Prediction.query(on: req).filter(\.userID == userID).all()
         }
     }
     
