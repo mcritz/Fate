@@ -8,6 +8,18 @@ import Foundation
 
 enum PredictionStatus: Int, Codable {
     case draft = 0, predicted, failed, accurate, partiallyAccurate, deleted
+    func description() -> String {
+        switch self {
+        case .failed:
+            return "False"
+        case .accurate:
+            return "True"
+        case .partiallyAccurate:
+            return "Kinda True"
+        default:
+            return "Predicted"
+        }
+    }
 }
 
 final class Prediction: Codable {
