@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/vapor/auth.git",
         "state": {
           "branch": null,
-          "revision": "90868627c7587ea207c0b6d4054265e68f6a33ef",
-          "version": "2.0.1"
+          "revision": "ed402783942af1d40b5c9e537e956aea51618f0e",
+          "version": "2.0.3"
         }
       },
       {
@@ -62,6 +62,15 @@
           "branch": null,
           "revision": "8e3eb9d24d54ac58c8d04c194ad6b24f0b1b667e",
           "version": "1.0.0"
+        }
+      },
+      {
+        "package": "FluentSQLite",
+        "repositoryURL": "https://github.com/vapor/fluent-sqlite.git",
+        "state": {
+          "branch": null,
+          "revision": "c32f5bda84bf4ea691d19afe183d40044f579e11",
+          "version": "3.0.0"
         }
       },
       {
@@ -125,6 +134,15 @@
           "branch": null,
           "revision": "839cf96eba296d26151ff1d7a746e9fe35053584",
           "version": "2.2.0"
+        }
+      },
+      {
+        "package": "SQLite",
+        "repositoryURL": "https://github.com/vapor/sqlite.git",
+        "state": {
+          "branch": null,
+          "revision": "4f5e173abafb0bb185608d28fccec3df166c689a",
+          "version": "3.2.0"
         }
       },
       {
@@ -195,8 +213,8 @@
         "repositoryURL": "https://github.com/vapor/vapor.git",
         "state": {
           "branch": null,
-          "revision": "54cbf396147aba77ecb32e7fc75a3d13251551b1",
-          "version": "3.1.1"
+          "revision": "c86ada59b31c69f08a6abd4f776537cba48d5df6",
+          "version": "3.3.0"
         }
       },
       {
