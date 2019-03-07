@@ -14,7 +14,7 @@ final class Prediction: Codable {
     var id: UUID?
     let description: String
     var status: PredictionStatus
-    init(id: UUID? = nil, description: String, status: PredictionStatus? = .draft, userID: User.ID) {
+    init(id: UUID? = nil, description: String, status: PredictionStatus? = .draft, userID: UUID) {
         self.id = id
         self.description = description
         if let realStatus: PredictionStatus = status {
@@ -25,5 +25,5 @@ final class Prediction: Codable {
         self.userID = userID
     }
     // MARK: Relations
-    var userID: User.ID
+    var userID: UUID
 }
