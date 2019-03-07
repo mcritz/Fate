@@ -39,7 +39,6 @@ extension User: TokenAuthenticatable {
     typealias TokenType = Token
 }
 
-// TODO: Load admin password from env, then seed database. See book, pp 427..43x
 struct AdminUser: Migration {
     
     typealias Database = PostgreSQLDatabase
