@@ -10,21 +10,23 @@ import Crypto
 import Authentication
 
 final class TopicController: RouteCollection {
+    // MARK: Routing
     func boot(router: Router) throws {
         let topicCollection = router.grouped("topics")
-        topicCollection.post(use: self.post)
         topicCollection.get(use: self.index)
         topicCollection.get(Topic.parameter, use: self.fetch)
-        topicCollection.put(Topic.parameter, use: self.update)
         topicCollection.get(Topic.parameter, "predictions", use: self.predictions)
         topicCollection.post(Topic.parameter, "predictions", Prediction.parameter, use: self.addPrediction)
         
-        let basicAuthMiddleware = User.basicAuthMiddleware(using: BCryptDigest())
+        // MARK: Protected Routes
+        let tokenAuthMiddleware = User.tokenAuthMiddleware()
         let guardMiddleware = User.guardAuthMiddleware()
-        let topicProtectedRoutes = topicCollection.grouped(basicAuthMiddleware, guardMiddleware)
+        let topicProtectedRoutes = topicCollection.grouped(tokenAuthMiddleware, guardMiddleware)
         topicProtectedRoutes.post(use: self.post)
         topicProtectedRoutes.put(Topic.parameter, use: self.update)
     }
+    
+    // MARK: - Handlers
     func index(_ req: Request) throws -> Future<[Topic]> {
         return Topic.query(on: req).all()
     }
