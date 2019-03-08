@@ -13,6 +13,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     let databaseUser = Environment.get("DATABASE_USER")
     let databaseDB = Environment.get("DATABASE_DB")
     let databasePassword = Environment.get("DATABASE_PASSWORD")
+    let dbPort = 5432
     guard let hostname = databaseHostname,
         let user = databaseUser,
         let db = databaseDB,
@@ -25,9 +26,11 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     var psqlConfig: PostgreSQLDatabaseConfig
     switch env.name {
     case "development":
-        psqlConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: 5432, username: user, database: db)
+        psqlConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: dbPort, username: user, database: db)
+    case "testing":
+        psqlConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: dbPort, username: "mcritz", database: "vapor-test")
     default:
-         psqlConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: 5432, username: user, database: db, password: password)
+         psqlConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: dbPort, username: user, database: db, password: password)
     }
     let psql = PostgreSQLDatabase(config: psqlConfig)
     services.register(psql)
