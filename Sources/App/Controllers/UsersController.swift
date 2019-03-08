@@ -31,23 +31,26 @@ struct UsersController: RouteCollection {
         protectedUserRoutes.get(use: getAllHandler)
     }
     
-    func createHandler(_ req: Request, user: User) throws -> Future<User> {
+    func createHandler(_ req: Request, user: User) throws -> Future<Person> {
         user.password = try BCrypt.hash(user.password)
-        return user.save(on: req)
+        return user.save(on: req).flatMap(to: Person.self) { user -> Future<Person> in
+            Future.map(on: req) { try user.convertToPerson() }
+        }
     }
     
-    func getAllHandler(_ req: Request) throws -> Future<[User]> {
-        return User.query(on: req).all()
+    func getAllHandler(_ req: Request) throws -> Future<[Person]> {
+        return User.query(on: req).decode(data: Person.self).all()
     }
     
-    func getUserByUsername(_ req: Request) throws -> Future<User> {
+    func getUserByUsername(_ req: Request) throws -> Future<Person> {
         let stringParameter = try req.parameters.next(String.self)
-        return User.query(on: req).filter(\.username == stringParameter).first().flatMap(to: User.self) { matchedUser -> Future<User> in
+        let person = User.query(on: req).filter(\.username == stringParameter).first().flatMap(to: Person.self) { matchedUser -> Future<Person> in
             guard let user: User = matchedUser else {
                 throw Abort(.notFound)
             }
-            return Future.map(on: req) { user }
+            return Future.map(on: req) { try user.convertToPerson() }
         }
+        return person
     }
     
     func getPredictionsByUsername(_ req: Request) throws -> Future<[Prediction]> {

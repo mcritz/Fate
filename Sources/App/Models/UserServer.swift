@@ -3,9 +3,18 @@ import Authentication
 import FluentPostgreSQL
 import Crypto
 
+extension Person: Content {}
+
 // MARK: Vapor specific
 extension User: PostgreSQLUUIDModel {}
-extension User: Content {}
+extension User: Content {
+    func convertToPerson() throws -> Person {
+        guard let realID = id else {
+            throw Abort(.internalServerError)
+        }
+        return Person(id: realID, username: username)
+    }
+}
 extension User: Parameter {}
 extension User: Migration {
     static func prepare(on connection: PostgreSQLConnection) -> Future<Void> {
