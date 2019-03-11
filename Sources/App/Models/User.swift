@@ -13,3 +13,13 @@ final class User: Codable {
         self.password = password
     }
 }
+
+final class Person: Codable {
+    let id: UUID
+    let username: String
+    
+    init(id: UUID, username: String) {
+        self.id = id
+        self.username = username
+    }
+}
