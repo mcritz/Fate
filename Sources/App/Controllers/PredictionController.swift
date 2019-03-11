@@ -30,6 +30,11 @@ final class PredictionController: RouteCollection {
     }
     
     func create(_ req: Request) throws -> Future<Prediction> {
+        // Perms check
+        let user = try req.requireAuthenticated(User.self)
+        guard user.priviliges.contains(.createPrediction) else {
+            throw Abort(.unauthorized)
+        }
         return try req.content.decode(Prediction.self).flatMap { predix in
             let futureTopic = req.content.get(Int.self, at: "topicID").flatMap(to: Topic.self) { topicID -> Future<Topic> in
                 return Topic.find(topicID, on: req) ?? Topic.init(name: "Uncategorized")
@@ -45,9 +50,50 @@ final class PredictionController: RouteCollection {
         }
     }
     
+    // MARK: Permissions
+    // FIXME: Generalize this function to make models and perms more reusable
+    /// Creates a `Bool` on the same container as this `Request`.
+    /// Intended use is to chain `Future`
+    ///
+    ///    let maybeOldPrediction = try canEdit(with: req).map(to: Request.self) { isAuthorized in
+    ///        guard isAuthorized else { throw Abort(.unauthorized) }
+    ///        return req
+    ///        }.flatMap(to: Prediction.self) { req in
+    ///            return try req.parameters.next(Prediction.self)
+    ///    }
+    ///
+    /// - parameters:
+    ///     - request: Required `Request` to find Model<Prediction>
+    /// - returns: `Bool` true if user can edit request’s `Prediction`
+    func canEdit(with request: Request) throws -> Future<Bool> {
+        let user = try request.requireAuthenticated(User.self)
+        
+        // FIXME: This could break
+        // If the request contains a user, but not a saved prediction
+        // because it returns true before the prediction has been queried. This is the double-edged sword of "exit early"
+        if user.priviliges.contains(.updateOtherUserPrediction) {
+            return Future.map(on: request) { true }
+        }
+        
+        return try request.parameters.next(Prediction.self).map(to: Bool.self) { predix -> Bool in
+            if let realID = user.id,
+                realID == predix.userID {
+                return true
+            }
+            return false
+        }
+    }
+    
     func updatePrediction(_ req: Request) throws -> Future<Prediction> {
-        let maybeOldPrediction = try req.parameters.next(Prediction.self)
+        // MARK: Perms check
+        let maybeOldPrediction = try canEdit(with: req).map(to: Request.self) { isAuthorized in
+            guard isAuthorized else { throw Abort(.unauthorized) }
+            return req
+        }.flatMap(to: Prediction.self) { req in
+            return try req.parameters.next(Prediction.self)
+        }
         return maybeOldPrediction.flatMap { oldPredix -> Future<Prediction> in
+            // MARK: Update content
             let maybeNewPrediction = try req.content.decode(Prediction.self)
             return maybeNewPrediction.map { newPredix in
                 let constructedPrediction = newPredix
@@ -68,6 +114,7 @@ final class PredictionController: RouteCollection {
     }
     
     func addTopic(_ req: Request) throws -> Future<HTTPStatus> {
+        
         return try flatMap(to: HTTPStatus.self, req.parameters.next(Prediction.self), req.parameters.next(Topic.self)) { prediction, topic in
             return prediction.topics.attach(topic, on: req).transform(to: .created)
         }

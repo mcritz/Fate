@@ -46,13 +46,17 @@ struct AdminUser: Migration {
             let username = adminUsername,
             let email = adminEmail
             else {
-                fatalError("Admin password not set in environment")
+                fatalError("Required Admin values not set in environment")
         }
         let maybeEncryptedPassword = try? BCrypt.hash(password)
         guard let encryptedPassword = maybeEncryptedPassword else {
             fatalError("Admin password could not be encrypted")
         }
-        let admin = User(id: nil, email: email, username: username, password: encryptedPassword)
+        let admin = User(id: nil,
+                         email: email,
+                         username: username,
+                         password: encryptedPassword,
+                         privs: [])
         return admin.save(on: conn).transform(to: ())
     }
     
