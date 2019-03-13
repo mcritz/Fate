@@ -40,6 +40,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     // Must have the models in order from which references which
     migrations.add(model: User.self, database: .psql)
     migrations.add(model: Topic.self, database: .psql)
+    migrations.add(model: FeaturedTopic.self, database: .psql)
     migrations.add(model: Prediction.self, database: .psql)
     migrations.add(model: TopicPivot.self, database: .psql)
     migrations.add(model: Token.self, database: .psql)

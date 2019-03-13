@@ -18,3 +18,9 @@ extension Topic: PostgreSQLModel {}
 extension Topic: Migration {}
 extension Topic: Content {}
 extension Topic: Parameter {}
+extension Topic {
+    var featuredTopic: Parent<Topic, FeaturedTopic> {
+        // FIXME: Not this!
+        return parent(\.featuredTopicID)! // OHNOES!
+    }
+}

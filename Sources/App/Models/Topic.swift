@@ -13,4 +13,6 @@ final class Topic: Codable {
     init(name: String) {
         self.name = name
     }
+    // MARK: Relations
+    var featuredTopicID: UUID?
 }
