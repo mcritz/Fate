@@ -19,6 +19,7 @@ final class TopicController: RouteCollection {
         topicCollection.get("featured", use: self.fetchFeatured)
         topicCollection.post("featured", use: self.createFeatured)
         topicCollection.post(Topic.parameter, "featured", FeaturedTopic.parameter, use: self.addToFeatured)
+        topicCollection.delete(Topic.parameter, "featured", FeaturedTopic.parameter, use: self.removeFromFeatured)
         topicCollection.post(Topic.parameter, "predictions", Prediction.parameter, use: self.addPrediction)
         
         // MARK: Protected Routes
@@ -63,18 +64,23 @@ final class TopicController: RouteCollection {
             to: HTTPStatus.self,
             req.parameters.next(Topic.self),
             req.parameters.next(FeaturedTopic.self)) { oldTopic, featuredTopic in
-                return FeaturedTopic(priority: 1).save(on: req).flatMap(to: FeaturedTopic.self) { (featuredTopic) in
-                    return featuredTopic.save(on: req)
-                }.flatMap(to: Topic.self, { (fTopic) in
+                return featuredTopic.save(on: req).flatMap(to: Topic.self, { (fTopic) in
                     guard let newFeaturedTopicID = fTopic.id else {
                         throw Abort(.internalServerError)
                     }
-                    let newTopic = Topic(name: oldTopic.name)
-                    newTopic.id = oldTopic.id
-                    newTopic.featuredTopicID = newFeaturedTopicID
-                    return newTopic.save(on: req)
-                }).transform(to: HTTPStatus.created)
+                    oldTopic.featuredTopicID = newFeaturedTopicID
+                    return oldTopic.save(on: req)
+                }).transform(to: .ok)
             }
+    }
+    func removeFromFeatured(_ req: Request) throws -> Future<HTTPStatus> {
+        return try flatMap(
+            to: HTTPStatus.self,
+            req.parameters.next(Topic.self),
+            req.parameters.next(FeaturedTopic.self)) { oldTopic, featuredTopic in
+                oldTopic.featuredTopicID = nil
+                return oldTopic.save(on: req).transform(to: .ok)
+        }
     }
     func predictions(_ req: Request) throws -> Future<[Prediction]> {
         return try req.parameters.next(Topic.self).flatMap(to: [Prediction].self) { topic in
