@@ -17,7 +17,8 @@ final class TopicController: RouteCollection {
         topicCollection.get(Topic.parameter, use: self.fetch)
         topicCollection.get(Topic.parameter, "predictions", use: self.predictions)
         topicCollection.get("featured", use: self.fetchFeatured)
-        topicCollection.post("featured", Topic.parameter, use: self.addToFeatured)
+        topicCollection.post("featured", use: self.createFeatured)
+        topicCollection.post(Topic.parameter, "featured", FeaturedTopic.parameter, use: self.addToFeatured)
         topicCollection.post(Topic.parameter, "predictions", Prediction.parameter, use: self.addPrediction)
         
         // MARK: Protected Routes
@@ -54,11 +55,14 @@ final class TopicController: RouteCollection {
     func fetchFeatured(_ req: Request) throws -> Future<[Topic]> {
         return Topic.query(on: req).join(\FeaturedTopic.id, to: \Topic.featuredTopicID).sort(\FeaturedTopic.priority).all()
     }
+    func createFeatured(_ req: Request) throws -> Future<FeaturedTopic> {
+        return try req.content.decode(FeaturedTopic.self).save(on: req)
+    }
     func addToFeatured(_ req: Request) throws -> Future<HTTPStatus> {
         return try flatMap(
             to: HTTPStatus.self,
-            req.parameters.next(FeaturedTopic.self),
-            req.parameters.next(Topic.self)) { featuredTopic, oldTopic in
+            req.parameters.next(Topic.self),
+            req.parameters.next(FeaturedTopic.self)) { oldTopic, featuredTopic in
                 return FeaturedTopic(priority: 1).save(on: req).flatMap(to: FeaturedTopic.self) { (featuredTopic) in
                     return featuredTopic.save(on: req)
                 }.flatMap(to: Topic.self, { (fTopic) in
