@@ -7,11 +7,21 @@
 
 import Foundation
 
-enum Privilege: String, Codable {
-    case createPrediction,
-    updateOtherUserPrediction,
-    createTopic,
-    adminUsers
+class Permissions: Codable {
+    var privileges: [Privilege]
+    init(privileges: [Privilege]) {
+        self.privileges = privileges
+    }
+    func has(privilege: Privilege) -> Bool {
+        return privileges.contains(privilege) ? true : false
+    }
+}
+
+enum Privilege: UInt8, Codable, RawRepresentable {
+    case createPrediction = 1,
+    updateOtherUserPrediction = 3,
+    createTopic = 2,
+    adminUsers = 0
     
     public var allPriviliges: [Privilege] {
         get {

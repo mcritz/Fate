@@ -69,7 +69,7 @@ final class PredictionController: RouteCollection {
         // FIXME: This could break
         // If the request contains a user, but not a saved prediction
         // because it returns true before the prediction has been queried.
-        if user.priviliges.contains(.updateOtherUserPrediction) {
+        if user.permissions.has(privilege: .updateOtherUserPrediction) {
             return Future.map(on: request) { true }
         }
         

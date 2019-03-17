@@ -6,12 +6,13 @@ final class User: Codable {
     let email: String
     let username: String
     var password: String
-    var priviliges: [Privilege] = [.createPrediction]
+    var permissions: Permissions
     init(id: UUID?, email: String, username: String?, password: String) {
         self.id = id
         self.email = email
         self.username = email
         self.password = password
+        self.permissions = Permissions(privileges: [.createPrediction])
     }
 }
 

@@ -33,7 +33,7 @@ struct UsersController: RouteCollection {
     
     func createHandler(_ req: Request, user: User) throws -> Future<Person> {
         user.password = try BCrypt.hash(user.password)
-        user.priviliges = [.createPrediction]
+        user.permissions = Permissions(privileges: [.createPrediction])
         return user.save(on: req).flatMap(to: Person.self) { user -> Future<Person> in
             Future.map(on: req) { try user.convertToPerson() }
         }

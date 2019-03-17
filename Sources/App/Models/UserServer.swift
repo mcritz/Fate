@@ -16,7 +16,7 @@ extension User: Content {
     }
     public static func hasPrivilige(privilege: Privilege, on req: Request) throws -> Bool {
         let user = try req.requireAuthenticated(User.self)
-        return user.priviliges.contains(privilege) ? true : false
+        return user.permissions.has(privilege: privilege)
     }
 }
 extension User: Parameter {}
@@ -60,7 +60,7 @@ struct AdminUser: Migration {
                          email: email,
                          username: username,
                          password: encryptedPassword)
-        admin.priviliges.append(contentsOf: [
+        admin.permissions = Permissions(privileges: [
             .adminUsers,
             .createTopic,
             .updateOtherUserPrediction
