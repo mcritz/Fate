@@ -30,9 +30,7 @@ final class PredictionController: RouteCollection {
     }
     
     func create(_ req: Request) throws -> Future<Prediction> {
-        // Perms check
-        let user = try req.requireAuthenticated(User.self)
-        guard user.priviliges.contains(.createPrediction) else {
+        guard try User.hasPrivilige(privilege: .createPrediction, on: req) else {
             throw Abort(.unauthorized)
         }
         return try req.content.decode(Prediction.self).flatMap { predix in
@@ -64,13 +62,13 @@ final class PredictionController: RouteCollection {
     ///
     /// - parameters:
     ///     - request: Required `Request` to find Model<Prediction>
-    /// - returns: `Bool` true if user can edit request’s `Prediction`
+    /// - returns: `Future<Bool>` true if user can edit request’s `Prediction`
     func canEdit(with request: Request) throws -> Future<Bool> {
         let user = try request.requireAuthenticated(User.self)
         
         // FIXME: This could break
         // If the request contains a user, but not a saved prediction
-        // because it returns true before the prediction has been queried. This is the double-edged sword of "exit early"
+        // because it returns true before the prediction has been queried.
         if user.priviliges.contains(.updateOtherUserPrediction) {
             return Future.map(on: request) { true }
         }
@@ -113,16 +111,32 @@ final class PredictionController: RouteCollection {
         }
     }
     
+    // FIXME: Future chains are far too confusing
     func addTopic(_ req: Request) throws -> Future<HTTPStatus> {
-        
-        return try flatMap(to: HTTPStatus.self, req.parameters.next(Prediction.self), req.parameters.next(Topic.self)) { prediction, topic in
-            return prediction.topics.attach(topic, on: req).transform(to: .created)
+        // Perms check returns a `Future<Bool>` that chains…
+        return try canEdit(with: req).map(to: Request.self) { isAuthorized throws in
+            guard isAuthorized else { throw Abort(.unauthorized) }
+            return req
+        }.flatMap(to: HTTPStatus.self) { req in
+            // Take in the request, attach prediction to topic, and return 201
+            return try flatMap(to: HTTPStatus.self,
+                               req.parameters.next(Prediction.self),
+                               req.parameters.next(Topic.self)) { prediction, topic in
+                return prediction.topics.attach(topic, on: req).transform(to: .created)
+            }
         }
     }
     
     func removeTopic(_ req: Request) throws -> Future<HTTPStatus> {
-        return try flatMap(to: HTTPStatus.self, req.parameters.next(Prediction.self), req.parameters.next(Topic.self)) { prediction, topic in
-            return prediction.topics.detach(topic, on: req).transform(to: .ok)
+        return try canEdit(with: req).map(to: Request.self) { isAuthorized throws in
+            guard isAuthorized else { throw Abort(.unauthorized) }
+            return req
+        }.flatMap(to: HTTPStatus.self) { req in
+            return try flatMap(to: HTTPStatus.self,
+                               req.parameters.next(Prediction.self),
+                               req.parameters.next(Topic.self)) { prediction, topic in
+                return prediction.topics.detach(topic, on: req).transform(to: .ok)
+            }
         }
     }
 }

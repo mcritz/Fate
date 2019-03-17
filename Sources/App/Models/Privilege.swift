@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Privilege: UInt8, Codable {
+enum Privilege: String, Codable {
     case createPrediction,
     updateOtherUserPrediction,
     createTopic,

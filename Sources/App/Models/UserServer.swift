@@ -14,6 +14,10 @@ extension User: Content {
         }
         return Person(id: realID, username: username)
     }
+    public static func hasPrivilige(privilege: Privilege, on req: Request) throws -> Bool {
+        let user = try req.requireAuthenticated(User.self)
+        return user.priviliges.contains(privilege) ? true : false
+    }
 }
 extension User: Parameter {}
 extension User: Migration {
@@ -55,8 +59,12 @@ struct AdminUser: Migration {
         let admin = User(id: nil,
                          email: email,
                          username: username,
-                         password: encryptedPassword,
-                         privs: [])
+                         password: encryptedPassword)
+        admin.priviliges.append(contentsOf: [
+            .adminUsers,
+            .createTopic,
+            .updateOtherUserPrediction
+            ])
         return admin.save(on: conn).transform(to: ())
     }
     
