@@ -3,7 +3,7 @@ import Vapor
 import XCTest
 import FluentPostgreSQL
 
-final class UserTest: XCTest {
+final class UserTest: XCTestCase {
     func testGetUsers() throws {
         let testName = "Jonathan Longnamerson"
         let testUsername = "jonathan.longnamerson"
@@ -37,7 +37,4 @@ final class UserTest: XCTest {
 
         dbConnection.close()
     }
-    static let allTests = [
-        ("testGetUsers", testGetUsers)
-    ]
 }
