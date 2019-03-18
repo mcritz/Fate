@@ -28,7 +28,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     case "development":
         psqlConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: dbPort, username: user, database: db)
     case "testing":
-        psqlConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: dbPort, username: "mcritz", database: "vapor-test")
+        psqlConfig = PostgreSQLDatabaseConfig(hostname: "localhost", port: dbPort, username: "mcritz", database: "vapor-test")
     default:
          psqlConfig = PostgreSQLDatabaseConfig(hostname: hostname, port: dbPort, username: user, database: db, password: password)
     }

@@ -3,15 +3,6 @@ import Vapor
 import XCTest
 import FluentPostgreSQL
 
-extension String {
-    static func createRandom(length: Int) -> String {
-        let characters = CharacterSet.alphanumerics.description
-        return String((0...(length - 1)).map{_ in
-            characters.randomElement()!
-        })
-    }
-}
-
 final class TopicsTests: XCTestCase {
     var config = Config.default()
     var services = Services.default()
@@ -59,6 +50,7 @@ final class TopicsTests: XCTestCase {
     
     
     func testCreateTopic() {
+        print("testCreateTopic")
         var httpRequest = HTTPRequest(method: .GET,
                                   url: URL(string: "/topics")!)
         var req = Request(http: httpRequest, using: app!)
