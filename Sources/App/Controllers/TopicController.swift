@@ -35,14 +35,14 @@ final class TopicController: RouteCollection {
         return Topic.query(on: req).all()
     }
     func post(_ req: Request) throws -> Future<Topic> {
-        guard try User.hasPrivilige(privilege: .createTopic, on: req) else {
+        guard try User.hasPrivilige(privilege: .adminTopics, on: req) else {
             throw Abort(.unauthorized)
         }
         return try req.content.decode(Topic.self).save(on: req)
     }
     
     func update(topic req: Request) throws -> Future<Topic> {
-        guard try User.hasPrivilige(privilege: .createTopic, on: req) else {
+        guard try User.hasPrivilige(privilege: .adminTopics, on: req) else {
             throw Abort(.unauthorized)
         }
         let maybeOldTopic = try req.parameters.next(Topic.self)
@@ -63,13 +63,13 @@ final class TopicController: RouteCollection {
         return Topic.query(on: req).join(\FeaturedTopic.id, to: \Topic.featuredTopicID).sort(\FeaturedTopic.priority).all()
     }
     func createFeatured(_ req: Request) throws -> Future<FeaturedTopic> {
-        guard try User.hasPrivilige(privilege: .createTopic, on: req) else {
+        guard try User.hasPrivilige(privilege: .adminTopics, on: req) else {
             throw Abort(.unauthorized)
         }
         return try req.content.decode(FeaturedTopic.self).save(on: req)
     }
     func addToFeatured(_ req: Request) throws -> Future<HTTPStatus> {
-        guard try User.hasPrivilige(privilege: .createTopic, on: req) else {
+        guard try User.hasPrivilige(privilege: .adminTopics, on: req) else {
             throw Abort(.unauthorized)
         }
         return try flatMap(
@@ -86,7 +86,7 @@ final class TopicController: RouteCollection {
             }
     }
     func removeFromFeatured(_ req: Request) throws -> Future<HTTPStatus> {
-        guard try User.hasPrivilige(privilege: .createTopic, on: req) else {
+        guard try User.hasPrivilige(privilege: .adminTopics, on: req) else {
             throw Abort(.unauthorized)
         }
         return try flatMap(
@@ -103,7 +103,7 @@ final class TopicController: RouteCollection {
         }
     }
     func addPrediction(_ req: Request) throws -> Future<HTTPStatus> {
-        guard try User.hasPrivilige(privilege: .createTopic, on: req) else {
+        guard try User.hasPrivilige(privilege: .adminTopics, on: req) else {
             throw Abort(.unauthorized)
         }
         return try flatMap(

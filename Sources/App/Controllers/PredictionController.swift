@@ -34,10 +34,11 @@ final class PredictionController: RouteCollection {
             throw Abort(.unauthorized)
         }
         return try req.content.decode(Prediction.self).flatMap { predix in
+            // FIXME: Need to properly set initial status here
             let futureTopic = req.content.get(Int.self, at: "topicID").flatMap(to: Topic.self) { topicID -> Future<Topic> in
                 return Topic.find(topicID, on: req) ?? Topic.init(name: "Uncategorized")
             }
-            // FIXME: Bad smell. There is probably room for improvement here.
+            // FIXME: Blocks thread. There is probably room for improvement here using `Future` chaining
             // Add the prediction when the promise is fulfilled
             _ = futureTopic.do { topic in
                 _ = topic.predictions.attach(predix, on: req)
@@ -49,7 +50,6 @@ final class PredictionController: RouteCollection {
     }
     
     // MARK: Permissions
-    // FIXME: Generalize this function to make models and perms more reusable
     /// Creates a `Bool` on the same container as this `Request`.
     /// Intended use is to chain `Future`
     ///
@@ -66,9 +66,6 @@ final class PredictionController: RouteCollection {
     func canEdit(with request: Request) throws -> Future<Bool> {
         let user = try request.requireAuthenticated(User.self)
         
-        // FIXME: This could break
-        // If the request contains a user, but not a saved prediction
-        // because it returns true before the prediction has been queried.
         if user.permissions.has(privilege: .updateOtherUserPrediction) {
             return Future.map(on: request) { true }
         }
@@ -91,6 +88,7 @@ final class PredictionController: RouteCollection {
             return try req.parameters.next(Prediction.self)
         }
         return maybeOldPrediction.flatMap { oldPredix -> Future<Prediction> in
+            // FIXME: Need to properly set status here
             // MARK: Update content
             let maybeNewPrediction = try req.content.decode(Prediction.self)
             return maybeNewPrediction.map { newPredix in

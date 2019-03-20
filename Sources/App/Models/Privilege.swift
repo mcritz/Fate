@@ -18,17 +18,17 @@ class Permissions: Codable {
 }
 
 enum Privilege: UInt8, Codable, RawRepresentable {
-    case createPrediction = 1,
-    updateOtherUserPrediction = 3,
-    createTopic = 2,
-    adminUsers = 0
+    case createPrediction,
+    updateOtherUserPrediction,
+    adminTopics,
+    adminUsers
     
     public var allPriviliges: [Privilege] {
         get {
             return [
             .createPrediction,
             .updateOtherUserPrediction,
-            .createTopic,
+            .adminTopics,
             .adminUsers
             ]
         }

@@ -3,9 +3,10 @@ import Authentication
 import FluentPostgreSQL
 import Crypto
 
+// MARK: Person Vapor
 extension Person: Content {}
 
-// MARK: Vapor specific
+// MARK: User Vapor
 extension User: PostgreSQLUUIDModel {}
 extension User: Content {
     func convertToPerson() throws -> Person {
@@ -38,6 +39,7 @@ extension User: TokenAuthenticatable {
     typealias TokenType = Token
 }
 
+// MARK: Add Admin User
 struct AdminUser: Migration {
     
     typealias Database = PostgreSQLDatabase
@@ -62,7 +64,7 @@ struct AdminUser: Migration {
                          password: encryptedPassword)
         admin.permissions = Permissions(privileges: [
             .adminUsers,
-            .createTopic,
+            .adminTopics,
             .updateOtherUserPrediction
             ])
         return admin.save(on: conn).transform(to: ())
