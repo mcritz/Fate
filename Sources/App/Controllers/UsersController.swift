@@ -10,6 +10,7 @@ import Crypto
 import Authentication
 
 struct UsersController: RouteCollection {
+    // MARK: - Routing
     func boot(router: Router) throws {
         let usersRoute = router.grouped("/", "users")
         usersRoute.post(User.self, use: createHandler)
@@ -29,14 +30,33 @@ struct UsersController: RouteCollection {
         let guardAuthMiddleware = User.guardAuthMiddleware()
         let protectedUserRoutes = usersRoute.grouped(tokenAuthMiddleware, guardAuthMiddleware)
         protectedUserRoutes.get(use: getAllHandler)
+        protectedUserRoutes.put(User.parameter, use: self.update)
     }
     
+    // MARK: - Handlers
     func createHandler(_ req: Request, user: User) throws -> Future<Person> {
         user.password = try BCrypt.hash(user.password)
         user.permissions = Permissions(privileges: [.createPrediction])
         return user.save(on: req).flatMap(to: Person.self) { user -> Future<Person> in
             Future.map(on: req) { try user.convertToPerson() }
         }
+    }
+    
+    func update(user req: Request) throws -> Future<User> {
+        guard try User.hasPrivilige(privilege: .adminUsers, on: req) else {
+            throw Abort(.unauthorized)
+        }
+        let maybeOldUser = try req.parameters.next(User.self)
+        return maybeOldUser.flatMap(to: User.self) { oldUser in
+            let maybeNewUser = try req.content.decode(User.self)
+            return maybeNewUser.map(to: User.self) { user in
+                // NOTE: These ID assignments are optionals
+                user.id = oldUser.id
+                // FIXME: this can’t possibly work
+                user.password = oldUser.password
+                return user
+            }
+        }.save(on: req)
     }
     
     func getAllHandler(_ req: Request) throws -> Future<[Person]> {

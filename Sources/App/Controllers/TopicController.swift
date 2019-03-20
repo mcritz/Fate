@@ -49,9 +49,9 @@ final class TopicController: RouteCollection {
         return maybeOldTopic.flatMap { oldTopic -> Future<Topic> in
             let maybeNewTopic = try req.content.decode(Topic.self)
             return maybeNewTopic.map { newTopic in
-                let constructedTopic = newTopic
-                constructedTopic.id = oldTopic.id
-                return constructedTopic
+                // NOTE: These ID assignments are optionals
+                newTopic.id = oldTopic.id
+                return newTopic
             }
         }.save(on: req)
     }
