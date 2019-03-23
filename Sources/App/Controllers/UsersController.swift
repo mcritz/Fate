@@ -30,6 +30,7 @@ struct UsersController: RouteCollection {
         let guardAuthMiddleware = User.guardAuthMiddleware()
         let protectedUserRoutes = usersRoute.grouped(tokenAuthMiddleware, guardAuthMiddleware)
         protectedUserRoutes.get(use: getAllHandler)
+        protectedUserRoutes.delete(User.parameter, use: self.delete)
         protectedUserRoutes.put(User.parameter, use: self.update)
     }
     
@@ -42,7 +43,7 @@ struct UsersController: RouteCollection {
         }
     }
     
-    func update(user req: Request) throws -> Future<User> {
+    func update(user req: Request) throws -> Future<HTTPStatus> {
         guard try User.hasPrivilige(privilege: .adminUsers, on: req) else {
             throw Abort(.unauthorized)
         }
@@ -52,11 +53,24 @@ struct UsersController: RouteCollection {
             return maybeNewUser.map(to: User.self) { user in
                 // NOTE: These ID assignments are optionals
                 user.id = oldUser.id
-                // FIXME: this can’t possibly work
                 user.password = oldUser.password
                 return user
             }
-        }.save(on: req)
+        }.save(on: req).transform(to: .ok)
+    }
+    
+    func delete(user req: Request) throws -> Future<HTTPStatus> {
+        guard try User.hasPrivilige(privilege: .adminUsers, on: req) else {
+            throw Abort(.unauthorized)
+        }
+        return try req.parameters.next(User.self).flatMap() { user -> Future<Void> in
+            let userID = try user.requireID()
+            let token = Token.query(on: req)
+            .filter(\.userID == userID)
+            return token.delete()
+            }.flatMap(to: Future<HTTPStatus>.self) { _ in
+            return try req.parameters.next(User.self).delete(on: req).transform(to: HTTPStatus.ok)
+        }
     }
     
     func getAllHandler(_ req: Request) throws -> Future<[Person]> {
@@ -65,7 +79,9 @@ struct UsersController: RouteCollection {
     
     func getUserByUsername(_ req: Request) throws -> Future<Person> {
         let stringParameter = try req.parameters.next(String.self)
-        let person = User.query(on: req).filter(\.username == stringParameter).first().flatMap(to: Person.self) { matchedUser -> Future<Person> in
+        let person = User.query(on: req)
+            .filter(\.username == stringParameter).first()
+            .flatMap(to: Person.self) { matchedUser -> Future<Person> in
             guard let user: User = matchedUser else {
                 throw Abort(.notFound)
             }
